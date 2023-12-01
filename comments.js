@@ -1,74 +1,62 @@
-// create a web server 
-// import express from 'express';
-// import { v4 as uuidv4 } from 'uuid';
-// import cors from 'cors';
-// import bodyParser from 'body-parser';
-// import fs from 'fs';
-// import { fileURLToPath } from 'url';
-// import path, { dirname } from 'path';
-// import { createRequire } from 'module';
+// create web server
+const express = require('express');
+const app = express();
+// create logger
+const logger = require('./logger');
+// use logger
+app.use(logger);
+// create middleware for comments
+app.use('/comments', (req, res) => {
+  res.send('comments');
+});
+// create middleware for products
+app.use('/products', (req, res) => {
+  res.send('products');
+});
+// listen on port 3000
+app.listen(3000, () => {
+  console.log('Server is listening on port 3000');
+});
 
-// const require = createRequire(import.meta.url);
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
+// Path: logger.js
+// create middleware function
+function logger(req, res, next) {
+  console.log('Logging...');
+  next();
+}
+// export middleware
+module.exports = logger;
+```
 
-// // create an express app
-// const app = express();
+## 3.4. Built-in middleware
 
-// // use the express-static middleware
-// app.use(express.static("public"));
+Built-in middleware functions are functions that are bundled with Express. They are functions that are available through the express module. We can use them without installing any third-party modules. Here is a list of some of the built-in middleware functions:
 
-// app.use(cors());
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
+- express.static() - Serves static assets such as HTML files, images, and so on.
+- express.json() - Parses incoming requests with JSON payloads. The result is available in req.body.
+- express.urlencoded() - Parses incoming requests with URL-encoded payloads. The result is available in req.body.
 
-// // define the first route
-// app.get("/api", (req, res) => {
-//   res.send("<h1>Hello World!</h1>");
-// });
+## 3.5. Third-party middleware
 
-// app.get('/api/comments', (req, res) => {
-//   fs.readFile('./data/comments.json', 'utf-8', (err, data) => {
-//     if (err) {
-//       throw err;
-//     }
-//     res.send(JSON.parse(data));
-//   });
-// });
+Third-party middleware functions are functions that are not bundled with Express. They are functions that are available through third-party modules. We can use them by installing the third-party modules that contain them. Here is a list of some of the third-party middleware functions:
 
-// app.post('/api/comments', (req, res) => {
-//   const { name, message } = req.body;
-//   const newComment = {
-//     id: uuidv4(),
-//     name,
-//     message,
-//     date: Date.now()
-//   };
-//   fs.readFile('./data/comments.json', 'utf-8', (err, data) => {
-//     if (err) {
-//       throw err;
-//     }
-//     const comments = JSON.parse(data);
-//     comments.push(newComment);
-//     fs.writeFile('./data/comments.json', JSON.stringify(comments), (err) => {
-//       if (err) {
-//         throw err;
-//       }
-//       res.send('Comment has been saved!');
-//     });
-//   });
-// });
+- cookie-parser - Parses Cookie header and populates req.cookies with an object keyed by the cookie names.
+- multer - Parses multipart/form-data.
 
-// app.listen(3000, () => {
-//   console.log("server started");
-// });
+## 3.6. Application-level middleware
 
-// // Path: index.html
-// <!DOCTYPE html>
-// <html lang="en">
-// <head>
-//   <meta charset="UTF-8">
-//   <title>Comments</title>
-// </head>
-// <body>
-//   <div id="comments"></div>
+Application-level middleware functions are middleware functions that are bound to an instance of the app object. We can use app.use() and app.METHOD() to bind application-level middleware functions to an instance of the app object. Here is an example of application-level middleware:
+
+```js
+const express = require('express');
+const app = express();
+// application-level middleware
+app.use((req, res, next) => {
+  console.log('Logging...');
+  next();
+});
+app.get('/', (req, res) => {
+  res.send('Home');
+});
+app.get('/users', (req, res) => {
+  res.send('Users');
